@@ -12,7 +12,7 @@ repositories {
     maven { url 'https://jitpack.io' }
 }
 dependencies {
-    implementation 'com.github.ptsiogas4:secureBoxHelper:Tag'
+    implementation 'com.github.ptsiogas4:secureBoxHelper:-SNAPSHOT'
 }
 ```
 

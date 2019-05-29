@@ -20,6 +20,10 @@ dependencies {
 ```kotlin
 SecureBoxHelper.instance.encryptString("testVar", "sampleText", "mySecurePassword")
 SecureBoxHelper.instance.decryptString("testVar", "mySecurePassword")
+OR
+SecureBoxHelper.instance.encryptString("testVar", "sampleText")
+SecureBoxHelper.instance.decryptString("testVar")
+
 SecureBoxHelper.instance.deleteString("testVar")
 SecureBoxHelper.instance.deleteAllStrings()
 ```

@@ -21,6 +21,14 @@ class MainActivity : AppCompatActivity() {
         wrongPassTestButton.setOnClickListener {
             resultTextView.text = SecureBoxHelper.instance.decryptString("testVar", "wrongPass")
         }
+
+        deleteTestButton.setOnClickListener {
+            if (SecureBoxHelper.instance.deleteString("testVar")) {
+                resultTextView.text = "deleted succesfully"
+            } else {
+                resultTextView.text = "error!"
+            }
+        }
     }
 
 

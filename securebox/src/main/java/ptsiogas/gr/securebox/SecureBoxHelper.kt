@@ -2,6 +2,7 @@ package ptsiogas.gr.securebox
 
 import android.content.Context
 import android.util.Log
+import java.io.File
 import java.io.IOException
 import java.io.ObjectInputStream
 import java.security.SecureRandom
@@ -11,7 +12,6 @@ import javax.crypto.spec.IvParameterSpec
 import javax.crypto.spec.PBEKeySpec
 import javax.crypto.spec.SecretKeySpec
 import java.io.ObjectOutputStream
-
 
 class SecureBoxHelper {
     companion object {
@@ -51,6 +51,7 @@ class SecureBoxHelper {
             val oos = ObjectOutputStream(fos)
             oos.writeObject(map)
             oos.close()
+            storeVarName(variableName)
             return true
         } catch (e: Exception) {
             e.printStackTrace()
@@ -86,6 +87,42 @@ class SecureBoxHelper {
         return null
     }
 
+    fun deleteString(variableName: String): Boolean {
+        if (!checkInit()) {
+            return false
+        }
+        val dir = this.context?.filesDir
+        val file = File(dir, variableName + ".dat")
+        if (file.delete()) {
+            Log.e("SecureBoxHelper", "variable deleted successfully")
+            return true
+        }
+        return false
+    }
+
+    fun deleteAllStrings(): Boolean {
+        if (!checkInit()) {
+            return false
+        }
+        val map = loadVarNames()
+        for (entry in map.entries) {
+            if (!deleteString(entry.key)) {
+                return false
+            }
+        }
+        try {
+            val deletedMap = HashMap<String, Boolean>()
+            val fos = context!!.openFileOutput("varNames_secureHelper.dat", Context.MODE_PRIVATE)
+            val oos = ObjectOutputStream(fos)
+            oos.writeObject(deletedMap)
+            oos.close()
+        } catch (e: Exception) {
+            Log.e("SecureBoxHelper", "delete all exception", e)
+            return false
+        }
+        return true
+    }
+
     private fun encryptString(plainTextBytes: ByteArray, passwordString: String): HashMap<String, ByteArray> {
         val map = HashMap<String, ByteArray>()
 
@@ -117,7 +154,7 @@ class SecureBoxHelper {
             map["iv"] = iv
             map["encrypted"] = encrypted
         } catch (e: Exception) {
-            Log.e("MYAPP", "encryption exception", e)
+            Log.e("SecureBoxHelper", "encryption exception", e)
         }
 
         return map
@@ -143,9 +180,34 @@ class SecureBoxHelper {
             cipher.init(Cipher.DECRYPT_MODE, keySpec, ivSpec)
             decrypted = cipher.doFinal(encrypted)
         } catch (e: Exception) {
-            Log.e("MYAPP", "decryption exception", e)
+            Log.e("SecureBoxHelper", "decryption exception", e)
         }
 
         return decrypted
     }
+
+    private fun storeVarName(variableName: String) {
+        try {
+            val map = loadVarNames()
+            map[variableName] = true
+            val fos = context!!.openFileOutput("varNames_secureHelper.dat", Context.MODE_PRIVATE)
+            val oos = ObjectOutputStream(fos)
+            oos.writeObject(map)
+            oos.close()
+        } catch (e: Exception) {
+            Log.e("SecureBoxHelper", "store exception", e)
+        }
+    }
+
+    private fun loadVarNames(): HashMap<String, Boolean> {
+        try {
+            val fileInputStream = context!!.openFileInput("varNames_secureHelper.dat")
+            val objectInputStream = ObjectInputStream(fileInputStream)
+            return objectInputStream.readObject() as HashMap<String, Boolean>
+        } catch (e: Exception) {
+            Log.e("SecureBoxHelper", "load exception", e)
+        }
+        return HashMap<String, Boolean>()
+    }
+
 }

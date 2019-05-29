@@ -29,7 +29,7 @@ class SecureBoxHelper {
     private var context: Context? = null
 
     // only call from App!
-    fun init(appContext: Context) {
+    fun init(appContext: Context?) {
         this.context = appContext
     }
 

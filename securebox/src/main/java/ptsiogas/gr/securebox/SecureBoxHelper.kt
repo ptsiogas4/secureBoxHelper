@@ -2,7 +2,6 @@ package ptsiogas.gr.securebox
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.os.Build
 import android.provider.Settings
 import android.util.Log
 import java.io.File
@@ -15,9 +14,6 @@ import javax.crypto.spec.IvParameterSpec
 import javax.crypto.spec.PBEKeySpec
 import javax.crypto.spec.SecretKeySpec
 import java.io.ObjectOutputStream
-import android.provider.Settings.Secure
-
-
 
 class SecureBoxHelper {
     companion object {
@@ -47,7 +43,11 @@ class SecureBoxHelper {
         return true
     }
 
-    fun encryptString(variableName: String, plainText: String, passwordString: String = getSecureId()): Boolean {
+    fun encryptString(variableName: String, plainText: String): Boolean {
+        return encryptString(variableName, plainText, getSecureId())
+    }
+
+    fun encryptString(variableName: String, plainText: String, passwordString: String): Boolean {
         if (!checkInit()) {
             return false
         }
@@ -66,7 +66,11 @@ class SecureBoxHelper {
         return false
     }
 
-    fun decryptString(variableName: String, passwordString: String = getSecureId()): String? {
+    fun decryptString(variableName: String): String? {
+        return decryptString(variableName, getSecureId())
+    }
+
+    fun decryptString(variableName: String, passwordString: String): String? {
         if (!checkInit()) {
             return null
         }

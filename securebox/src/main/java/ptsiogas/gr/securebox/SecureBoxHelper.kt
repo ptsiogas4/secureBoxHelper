@@ -1,6 +1,9 @@
 package ptsiogas.gr.securebox
 
+import android.annotation.SuppressLint
 import android.content.Context
+import android.os.Build
+import android.provider.Settings
 import android.util.Log
 import java.io.File
 import java.io.IOException
@@ -12,6 +15,9 @@ import javax.crypto.spec.IvParameterSpec
 import javax.crypto.spec.PBEKeySpec
 import javax.crypto.spec.SecretKeySpec
 import java.io.ObjectOutputStream
+import android.provider.Settings.Secure
+
+
 
 class SecureBoxHelper {
     companion object {
@@ -41,7 +47,7 @@ class SecureBoxHelper {
         return true
     }
 
-    fun encryptString(variableName: String, plainText: String, passwordString: String): Boolean {
+    fun encryptString(variableName: String, plainText: String, passwordString: String = getSecureId()): Boolean {
         if (!checkInit()) {
             return false
         }
@@ -60,7 +66,7 @@ class SecureBoxHelper {
         return false
     }
 
-    fun decryptString(variableName: String, passwordString: String): String? {
+    fun decryptString(variableName: String, passwordString: String = getSecureId()): String? {
         if (!checkInit()) {
             return null
         }
@@ -210,4 +216,13 @@ class SecureBoxHelper {
         return HashMap<String, Boolean>()
     }
 
+    @SuppressLint("HardwareIds")
+    private fun getSecureId(): String {
+        val secureAndroidId = Settings.Secure.getString(this.context?.getContentResolver(), Settings.Secure.ANDROID_ID)
+        var androidId = "UNKNOWN"
+        if (secureAndroidId.isNotEmpty()) {
+            androidId = secureAndroidId
+        }
+        return androidId
+    }
 }

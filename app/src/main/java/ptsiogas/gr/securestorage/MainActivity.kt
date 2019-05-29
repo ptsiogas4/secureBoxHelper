@@ -12,10 +12,10 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         val sampleText = "This is a properly decrypted text."
         testTextView.text = sampleText
-        SecureBoxHelper.instance.encryptString("testVar", sampleText, "mySecurePassword")
+        SecureBoxHelper.instance.encryptString("testVar", sampleText)
 
         testButton.setOnClickListener {
-            resultTextView.text = SecureBoxHelper.instance.decryptString("testVar", "mySecurePassword")
+            resultTextView.text = SecureBoxHelper.instance.decryptString("testVar")
         }
 
         wrongPassTestButton.setOnClickListener {

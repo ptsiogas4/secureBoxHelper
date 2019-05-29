@@ -18,11 +18,10 @@ dependencies {
 
 ## secureBoxHelper kotlin sample code
 ```kotlin
-//First init the SecureBoxHelper ONLY in your Application class
-SecureBoxHelper.instance.init(this)
-
 SecureBoxHelper.instance.encryptString("testVar", "sampleText", "mySecurePassword")
 SecureBoxHelper.instance.decryptString("testVar", "mySecurePassword")
+SecureBoxHelper.instance.deleteString("testVar")
+SecureBoxHelper.instance.deleteAllStrings()
 ```
 
 ## Developed by

@@ -44,7 +44,13 @@ class SecureBoxHelper {
     }
 
     fun encryptString(variableName: String, plainText: String): Boolean {
-        return encryptString(variableName, plainText, getSecureId())
+        try {
+            return encryptString(variableName, plainText, getSecureId())
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        Log.e("SecureBoxHelper", "Something went wrong! Either variable name or password incorrect")
+        return false
     }
 
     fun encryptString(variableName: String, plainText: String, passwordString: String): Boolean {
@@ -61,13 +67,17 @@ class SecureBoxHelper {
             return true
         } catch (e: Exception) {
             e.printStackTrace()
-            Log.e("SecureBoxHelper", e.message)
         }
         return false
     }
 
     fun decryptString(variableName: String): String? {
-        return decryptString(variableName, getSecureId())
+        try {
+            return decryptString(variableName, getSecureId())
+        } catch (e: Exception) {
+            Log.e("SecureBoxHelper", "Something went wrong! Either variable name or password incorrect")
+        }
+        return null
     }
 
     fun decryptString(variableName: String, passwordString: String): String? {
@@ -86,13 +96,14 @@ class SecureBoxHelper {
             }
         } catch (e: ClassNotFoundException) {
             e.printStackTrace()
-            Log.e("SecureBoxHelper", e.message)
         } catch (e: IOException) {
             e.printStackTrace()
-            Log.e("SecureBoxHelper", e.message)
         } catch (e: ClassCastException) {
             e.printStackTrace()
-            Log.e("SecureBoxHelper", e.message)
+        } catch (e: java.lang.Exception) {
+            e.printStackTrace()
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
         return null
     }
@@ -127,7 +138,7 @@ class SecureBoxHelper {
             oos.writeObject(deletedMap)
             oos.close()
         } catch (e: Exception) {
-            Log.e("SecureBoxHelper", "delete all exception", e)
+            e.printStackTrace()
             return false
         }
         return true
@@ -164,7 +175,7 @@ class SecureBoxHelper {
             map["iv"] = iv
             map["encrypted"] = encrypted
         } catch (e: Exception) {
-            Log.e("SecureBoxHelper", "encryption exception", e)
+            e.printStackTrace()
         }
 
         return map
@@ -190,7 +201,7 @@ class SecureBoxHelper {
             cipher.init(Cipher.DECRYPT_MODE, keySpec, ivSpec)
             decrypted = cipher.doFinal(encrypted)
         } catch (e: Exception) {
-            Log.e("SecureBoxHelper", "decryption exception", e)
+            e.printStackTrace()
         }
 
         return decrypted
@@ -205,7 +216,7 @@ class SecureBoxHelper {
             oos.writeObject(map)
             oos.close()
         } catch (e: Exception) {
-            Log.e("SecureBoxHelper", "store exception", e)
+            e.printStackTrace()
         }
     }
 
@@ -215,7 +226,7 @@ class SecureBoxHelper {
             val objectInputStream = ObjectInputStream(fileInputStream)
             return objectInputStream.readObject() as HashMap<String, Boolean>
         } catch (e: Exception) {
-            Log.e("SecureBoxHelper", "load exception", e)
+            e.printStackTrace()
         }
         return HashMap<String, Boolean>()
     }

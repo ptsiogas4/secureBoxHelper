@@ -1,5 +1,5 @@
 # secureBoxHelper
-This is a simple Kotlin library in order to easily encrypt/decrypt a String with a given password.
+This is a simple Kotlin library in order to easily encrypt/decrypt a String with a given password. It uses the AES encryption algorithm in CBC mode.
 
 ### Building
 =======================
@@ -12,7 +12,7 @@ repositories {
     maven { url 'https://jitpack.io' }
 }
 dependencies {
-    implementation 'com.github.ptsiogas4:secureBoxHelper:0.0.4'
+    implementation 'com.github.ptsiogas4:secureBoxHelper:0.0.5'
 }
 ```
 

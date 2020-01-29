@@ -1,19 +1,26 @@
 package ptsiogas.gr.securebox
 
 import android.content.Context
-import android.support.test.InstrumentationRegistry
+import androidx.test.platform.app.InstrumentationRegistry
 import junit.framework.Assert.assertEquals
-import org.junit.Before
-import org.junit.Test
+import org.junit.*
+
 
 class SecureBoxHelperTests {
 
-    lateinit var instrumentationContext: Context
+    var instrumentationContext: Context? = null
 
     @Before
     fun setup() {
         instrumentationContext = InstrumentationRegistry.getInstrumentation().context
-        SecureBoxHelper.instance.init(instrumentationContext)
+        instrumentationContext?.let {
+            SecureBoxHelper.instance.init(it)
+        }
+    }
+
+    @After
+    fun tearDown() {
+        instrumentationContext = null
     }
 
     @Test

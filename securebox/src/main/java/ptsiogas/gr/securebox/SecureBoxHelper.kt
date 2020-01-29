@@ -75,7 +75,10 @@ class SecureBoxHelper {
         try {
             return decryptString(variableName, getSecureId())
         } catch (e: Exception) {
-            Log.e("SecureBoxHelper", "Something went wrong! Either variable name or password incorrect")
+            Log.e(
+                "SecureBoxHelper",
+                "Something went wrong! Either variable name or password incorrect"
+            )
         }
         return null
     }
@@ -85,14 +88,19 @@ class SecureBoxHelper {
             return null
         }
         try {
-            val fileInputStream = context!!.openFileInput(variableName + ".dat")
-            val objectInputStream = ObjectInputStream(fileInputStream)
-            val map = objectInputStream.readObject() as HashMap<String, ByteArray>
-            val decryptedByteArray = decryptString(map, passwordString)
-            if (decryptedByteArray != null) {
-                return String(decryptedByteArray)
-            } else {
-                Log.e("SecureBoxHelper", "Something went wrong! Either variable name or password incorrect")
+            val fileInputStream = context?.openFileInput(variableName + ".dat")
+            fileInputStream?.use { fileInputStream ->
+                val objectInputStream = ObjectInputStream(fileInputStream)
+                val map = objectInputStream.readObject() as HashMap<String, ByteArray>
+                val decryptedByteArray = decryptString(map, passwordString)
+                if (decryptedByteArray != null) {
+                    return String(decryptedByteArray)
+                } else {
+                    Log.e(
+                        "SecureBoxHelper",
+                        "Something went wrong! Either variable name or password incorrect"
+                    )
+                }
             }
         } catch (e: ClassNotFoundException) {
             e.printStackTrace()
@@ -144,7 +152,10 @@ class SecureBoxHelper {
         return true
     }
 
-    private fun encryptString(plainTextBytes: ByteArray, passwordString: String): HashMap<String, ByteArray> {
+    private fun encryptString(
+        plainTextBytes: ByteArray,
+        passwordString: String
+    ): HashMap<String, ByteArray> {
         val map = HashMap<String, ByteArray>()
 
         try {
@@ -222,9 +233,13 @@ class SecureBoxHelper {
 
     private fun loadVarNames(): HashMap<String, Boolean> {
         try {
-            val fileInputStream = context!!.openFileInput("varNames_secureHelper.dat")
-            val objectInputStream = ObjectInputStream(fileInputStream)
-            return objectInputStream.readObject() as HashMap<String, Boolean>
+            val fileInputStream = context?.openFileInput("varNames_secureHelper.dat")
+            var result = HashMap<String, Boolean>()
+            fileInputStream?.use { fileInputStream ->
+                val objectInputStream = ObjectInputStream(fileInputStream)
+                result = objectInputStream.readObject() as HashMap<String, Boolean>
+            }
+            return result
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -233,7 +248,10 @@ class SecureBoxHelper {
 
     @SuppressLint("HardwareIds")
     private fun getSecureId(): String {
-        val secureAndroidId = Settings.Secure.getString(this.context?.getContentResolver(), Settings.Secure.ANDROID_ID)
+        val secureAndroidId = Settings.Secure.getString(
+            this.context?.getContentResolver(),
+            Settings.Secure.ANDROID_ID
+        )
         var androidId = "UNKNOWN"
         if (secureAndroidId.isNotEmpty()) {
             androidId = secureAndroidId

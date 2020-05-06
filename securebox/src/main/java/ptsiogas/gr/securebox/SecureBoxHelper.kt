@@ -1,19 +1,12 @@
 package ptsiogas.gr.securebox
 
-import android.annotation.SuppressLint
 import android.content.Context
-import android.provider.Settings
 import android.util.Log
 import java.io.File
 import java.io.IOException
 import java.io.ObjectInputStream
-import java.security.SecureRandom
-import javax.crypto.Cipher
-import javax.crypto.SecretKeyFactory
-import javax.crypto.spec.IvParameterSpec
-import javax.crypto.spec.PBEKeySpec
-import javax.crypto.spec.SecretKeySpec
 import java.io.ObjectOutputStream
+import javax.crypto.spec.IvParameterSpec
 
 class SecureBoxHelper {
     companion object {
@@ -37,7 +30,7 @@ class SecureBoxHelper {
 
     private fun checkInit(): Boolean {
         if (this.context == null) {
-            Log.e("SecureBoxHelper", "You should first call init method before using the helper!!!")
+            Log.e(ErrorMessage.errorTitle.message, ErrorMessage.initError.message)
             return false
         }
         return true
@@ -45,11 +38,11 @@ class SecureBoxHelper {
 
     fun encryptString(variableName: String, plainText: String): Boolean {
         try {
-            return encryptString(variableName, plainText, getSecureId())
+            return encryptString(variableName, plainText, EncryptionUtils.getSecureId(context))
         } catch (e: Exception) {
             e.printStackTrace()
         }
-        Log.e("SecureBoxHelper", "Something went wrong! Either variable name or password incorrect")
+        ErrorMessage.logGeneralError()
         return false
     }
 
@@ -59,11 +52,11 @@ class SecureBoxHelper {
         }
         try {
             val map = encryptString(plainText.toByteArray(), passwordString)
-            val fos = context!!.openFileOutput(variableName + ".dat", Context.MODE_PRIVATE)
+            val fos = context!!.openFileOutput("$variableName.dat", Context.MODE_PRIVATE)
             val oos = ObjectOutputStream(fos)
             oos.writeObject(map)
             oos.close()
-            storeVarName(variableName)
+            StoreUtils.storeVarName(variableName, context)
             return true
         } catch (e: Exception) {
             e.printStackTrace()
@@ -73,12 +66,9 @@ class SecureBoxHelper {
 
     fun decryptString(variableName: String): String? {
         try {
-            return decryptString(variableName, getSecureId())
+            return decryptString(variableName, EncryptionUtils.getSecureId(context))
         } catch (e: Exception) {
-            Log.e(
-                "SecureBoxHelper",
-                "Something went wrong! Either variable name or password incorrect"
-            )
+            ErrorMessage.logGeneralError()
         }
         return null
     }
@@ -96,10 +86,7 @@ class SecureBoxHelper {
                 if (decryptedByteArray != null) {
                     return String(decryptedByteArray)
                 } else {
-                    Log.e(
-                        "SecureBoxHelper",
-                        "Something went wrong! Either variable name or password incorrect"
-                    )
+                    ErrorMessage.logGeneralError()
                 }
             }
         } catch (e: ClassNotFoundException) {
@@ -121,9 +108,9 @@ class SecureBoxHelper {
             return false
         }
         val dir = this.context?.filesDir
-        val file = File(dir, variableName + ".dat")
+        val file = File(dir, "$variableName.dat")
         if (file.delete()) {
-            Log.e("SecureBoxHelper", "variable deleted successfully")
+            Log.e(ErrorMessage.errorTitle.message, ErrorMessage.deletionError.message)
             return true
         }
         return false
@@ -133,7 +120,7 @@ class SecureBoxHelper {
         if (!checkInit()) {
             return false
         }
-        val map = loadVarNames()
+        val map = StoreUtils.loadVarNames(context)
         for (entry in map.entries) {
             if (!deleteString(entry.key)) {
                 return false
@@ -160,27 +147,17 @@ class SecureBoxHelper {
 
         try {
             //Random salt for next step
-            val random = SecureRandom()
-            val salt = ByteArray(256)
-            random.nextBytes(salt)
+            val salt = EncryptionUtils.getRandomByteArray(arraySize = 256)
 
             //PBKDF2 - derive the key from the password, don't use passwords directly
-            val passwordChar = passwordString.toCharArray() //Turn password into char[] array
-            val pbKeySpec = PBEKeySpec(passwordChar, salt, 1324, 256) //1324 iterations
-            val secretKeyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1")
-            val keyBytes = secretKeyFactory.generateSecret(pbKeySpec).getEncoded()
-            val keySpec = SecretKeySpec(keyBytes, "AES")
+            val keySpec = EncryptionUtils.getKeySpec(passwordString, salt)
 
             //Create initialization vector for AES
-            val ivRandom = SecureRandom() //not caching previous seeded instance of SecureRandom
-            val iv = ByteArray(16)
-            ivRandom.nextBytes(iv)
+            val iv = EncryptionUtils.getRandomByteArray(arraySize = 16)
             val ivSpec = IvParameterSpec(iv)
 
             //Encrypt
-            val cipher = Cipher.getInstance("AES/CBC/PKCS7Padding")
-            cipher.init(Cipher.ENCRYPT_MODE, keySpec, ivSpec)
-            val encrypted = cipher.doFinal(plainTextBytes)
+            val encrypted = EncryptionUtils.encryptByteArray(plainTextBytes, keySpec, ivSpec)
 
             map["salt"] = salt
             map["iv"] = iv
@@ -200,62 +177,15 @@ class SecureBoxHelper {
             val encrypted = map["encrypted"]
 
             //regenerate key from password
-            val passwordChar = passwordString.toCharArray()
-            val pbKeySpec = PBEKeySpec(passwordChar, salt, 1324, 256)
-            val secretKeyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1")
-            val keyBytes = secretKeyFactory.generateSecret(pbKeySpec).encoded
-            val keySpec = SecretKeySpec(keyBytes, "AES")
+            val keySpec = EncryptionUtils.getKeySpec(passwordString, salt)
 
             //Decrypt
-            val cipher = Cipher.getInstance("AES/CBC/PKCS7Padding")
             val ivSpec = IvParameterSpec(iv)
-            cipher.init(Cipher.DECRYPT_MODE, keySpec, ivSpec)
-            decrypted = cipher.doFinal(encrypted)
+            decrypted = EncryptionUtils.decryptByteArray(encrypted, keySpec, ivSpec)
         } catch (e: Exception) {
             e.printStackTrace()
         }
 
         return decrypted
-    }
-
-    private fun storeVarName(variableName: String) {
-        try {
-            val map = loadVarNames()
-            map[variableName] = true
-            val fos = context!!.openFileOutput("varNames_secureHelper.dat", Context.MODE_PRIVATE)
-            val oos = ObjectOutputStream(fos)
-            oos.writeObject(map)
-            oos.close()
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-    }
-
-    private fun loadVarNames(): HashMap<String, Boolean> {
-        try {
-            val fileInputStream = context?.openFileInput("varNames_secureHelper.dat")
-            var result = HashMap<String, Boolean>()
-            fileInputStream?.use { fileInputStream ->
-                val objectInputStream = ObjectInputStream(fileInputStream)
-                result = objectInputStream.readObject() as HashMap<String, Boolean>
-            }
-            return result
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-        return HashMap<String, Boolean>()
-    }
-
-    @SuppressLint("HardwareIds")
-    private fun getSecureId(): String {
-        val secureAndroidId = Settings.Secure.getString(
-            this.context?.getContentResolver(),
-            Settings.Secure.ANDROID_ID
-        )
-        var androidId = "UNKNOWN"
-        if (secureAndroidId.isNotEmpty()) {
-            androidId = secureAndroidId
-        }
-        return androidId
     }
 }

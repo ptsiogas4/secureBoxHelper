@@ -28,7 +28,7 @@ maven { url 'https://jitpack.io' }
 
 dependencies {
 
-implementation 'com.github.ptsiogas4:secureBoxHelper:0.0.5'
+implementation 'com.github.ptsiogas4:secureBoxHelper:1.0.0'
 
 }
 

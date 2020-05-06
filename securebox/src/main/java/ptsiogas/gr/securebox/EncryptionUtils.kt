@@ -16,6 +16,15 @@ class EncryptionUtils {
             return Cipher.getInstance("AES/CBC/PKCS7Padding")
         }
 
+        private fun getCipherArray(
+            inputArray: ByteArray?, optMode: Int, keySpec: SecretKeySpec,
+            ivSpec: IvParameterSpec
+        ): ByteArray {
+            val cipher = getCipher()
+            cipher.init(optMode, keySpec, ivSpec)
+            return cipher.doFinal(inputArray)
+        }
+
         private fun getSecretKeyFactory(): SecretKeyFactory {
             return SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1")
         }
@@ -32,9 +41,12 @@ class EncryptionUtils {
             keySpec: SecretKeySpec,
             ivSpec: IvParameterSpec
         ): ByteArray {
-            val cipher = getCipher()
-            cipher.init(Cipher.ENCRYPT_MODE, keySpec, ivSpec)
-            return cipher.doFinal(inputArray)
+            return getCipherArray(
+                inputArray = inputArray,
+                optMode = Cipher.ENCRYPT_MODE,
+                keySpec = keySpec,
+                ivSpec = ivSpec
+            )
         }
 
         fun decryptByteArray(
@@ -42,9 +54,13 @@ class EncryptionUtils {
             keySpec: SecretKeySpec,
             ivSpec: IvParameterSpec
         ): ByteArray {
-            val cipher = getCipher()
-            cipher.init(Cipher.DECRYPT_MODE, keySpec, ivSpec)
-            return cipher.doFinal(inputArray)
+            return getCipherArray(
+                inputArray = inputArray,
+                optMode = Cipher.DECRYPT_MODE,
+                keySpec = keySpec,
+                ivSpec = ivSpec
+            )
+
         }
 
         fun getKeySpec(passwordString: String, salt: ByteArray?): SecretKeySpec {

@@ -1,4 +1,5 @@
 [![codebeat badge](https://codebeat.co/badges/085851e5-61df-482f-a5a7-5af0cad123e7)](https://codebeat.co/projects/github-com-ptsiogas4-secureboxhelper-master)
+[![CodeFactor](https://www.codefactor.io/repository/github/ptsiogas4/secureboxhelper/badge)](https://www.codefactor.io/repository/github/ptsiogas4/secureboxhelper)
 
 # secureBoxHelper
 

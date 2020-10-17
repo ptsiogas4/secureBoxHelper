@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">SecureStorage</string>
+    <string name="add_encryption_text">add encryption text</string>
 </resources>

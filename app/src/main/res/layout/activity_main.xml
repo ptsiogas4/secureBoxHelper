@@ -11,21 +11,42 @@
             android:id="@+id/testTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Hello World!"
+            android:text="Add a text to be ecrypted."
             android:layout_marginTop="64dp"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
+            app:layout_constraintTop_toTopOf="parent" />
+
+
+    <EditText
+            app:layout_constraintTop_toBottomOf="@id/testTextView"
+            android:id="@+id/editText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginStart="32dp"
+            android:layout_marginEnd="32dp"
+            android:hint="@string/add_encryption_text"/>
 
 
     <Button android:layout_width="140dp" android:layout_height="40dp"
             android:background="@color/colorPrimaryDark"
             android:textColor="#ffffff"
-            android:text="Decrypt"
-            app:layout_constraintTop_toBottomOf="@id/testTextView"
+            android:text="Encrypt"
+            app:layout_constraintTop_toBottomOf="@id/editText"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             android:layout_marginTop="32dp"
+            android:id="@+id/encryptButton"/>
+
+    <Button android:layout_width="140dp" android:layout_height="40dp"
+            android:background="@color/colorPrimaryDark"
+            android:textColor="#ffffff"
+            android:text="Decrypt"
+            app:layout_constraintTop_toBottomOf="@id/encryptButton"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            android:layout_marginTop="16dp"
             android:id="@+id/testButton"/>
 
     <Button android:layout_width="140dp" android:layout_height="40dp"

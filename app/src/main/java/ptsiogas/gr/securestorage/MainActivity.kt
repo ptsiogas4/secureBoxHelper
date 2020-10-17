@@ -10,9 +10,12 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        val sampleText = "This is a properly decrypted text."
-        testTextView.text = sampleText
-        SecureBoxHelper.instance.encryptString("testVar", sampleText)
+
+        encryptButton.setOnClickListener {
+            val text = editText?.text?.toString() ?: return@setOnClickListener
+            SecureBoxHelper.instance.encryptString("testVar", text)
+            resultTextView.text = "encrypted succesfully"
+        }
 
         testButton.setOnClickListener {
             resultTextView.text = SecureBoxHelper.instance.decryptString("testVar")
